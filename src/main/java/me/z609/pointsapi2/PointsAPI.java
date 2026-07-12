@@ -2,9 +2,11 @@ package me.z609.pointsapi2;
 
 import me.z609.pointsapi2.command.PointsCommand;
 import me.z609.pointsapi2.currency.CurrencyManager;
-import me.z609.pointsapi2.player.ChatFormatterListener;
 import me.z609.pointsapi2.player.PointsPlayer;
 import me.z609.pointsapi2.player.PointsPlayerManager;
+import me.z609.pointsapi2.storage.MySqlPointStorage;
+import me.z609.pointsapi2.storage.PointStorage;
+import me.z609.pointsapi2.storage.YamlPointStorage;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
@@ -17,17 +19,22 @@ public class PointsAPI extends JavaPlugin {
 
     private CurrencyManager currencyManager;
     private PointsPlayerManager pointsPlayerManager;
+    private PointStorage pointStorage;
     private boolean fullInit = false;
 
     @Override
     public void onEnable(){
-        if(getServer().getPluginManager().isPluginEnabled("ChatFormatter")){
-            getServer().getLogger().log(Level.INFO, "Dependency ChatFormatter was found...enabling!");
-            getServer().getPluginManager().registerEvents(new ChatFormatterListener(this), this);
-        }
         getConfig().options().copyDefaults(true);
-        save();
+        saveConfig();
         currencyManager = new CurrencyManager(this);
+        try {
+            pointStorage = "MYSQL".equalsIgnoreCase(getConfig().getString("storage.type", "YAML"))
+                    ? new MySqlPointStorage(this) : new YamlPointStorage(this);
+        } catch (Exception exception) {
+            getLogger().log(Level.SEVERE, "Could not initialize MySQL storage. Check storage.mysql in config.yml.", exception);
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         pointsPlayerManager = new PointsPlayerManager(this);
         new PointsCommand(this);
         fullInit = true;
@@ -39,6 +46,7 @@ public class PointsAPI extends JavaPlugin {
         for(PointsPlayer player : pointsPlayerManager.getPlayers()){
             player.save();
         }
+        pointStorage.close();
     }
 
     public void reload(){
@@ -57,4 +65,6 @@ public class PointsAPI extends JavaPlugin {
     public PointsPlayerManager getPointsPlayerManager() {
         return pointsPlayerManager;
     }
+
+    public PointStorage getPointStorage() { return pointStorage; }
 }

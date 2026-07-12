@@ -24,12 +24,11 @@ public class OfflinePointsPlayer {
     }
 
     public void set(Currency currency, int value){
-        parent.getParent().getConfig().set("values." + getUniqueId().toString() + "." + currency.getId(), value);
-        parent.getParent().save();
+        parent.getParent().getPointStorage().set(getUniqueId(), currency.getId(), value);
     }
 
     public int get(Currency currency){
-        return parent.getParent().getConfig().getInt("values." + getUniqueId().toString() + "." + currency.getId());
+        return parent.getParent().getPointStorage().get(getUniqueId(), currency.getId(), currency.getDefaultValue());
     }
 
     public UUID getUniqueId() {

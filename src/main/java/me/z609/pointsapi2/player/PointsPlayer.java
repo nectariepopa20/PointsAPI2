@@ -1,7 +1,6 @@
 package me.z609.pointsapi2.player;
 
 import me.z609.pointsapi2.currency.Currency;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -19,15 +18,9 @@ public class PointsPlayer extends OfflinePointsPlayer {
     public PointsPlayer(PointsPlayerManager parent, Player bukkitPlayer) {
         super(parent, bukkitPlayer.getUniqueId());
         this.bukkitPlayer = bukkitPlayer;
-        FileConfiguration configuration = parent.getParent().getConfig();
         for(int i = 0; i < parent.getParent().getCurrencyManager().getCurrencies().size(); i++){
             Currency currency = parent.getParent().getCurrencyManager().getCurrencies().get(i);
-            try {
-                int value = configuration.getInt("values." + getUniqueId().toString() + "." + currency.getId());
-                currencyValues.put(currency, value);
-            } catch (NullPointerException ignored) {
-
-            }
+            currencyValues.put(currency, parent.getParent().getPointStorage().get(getUniqueId(), currency.getId(), currency.getDefaultValue()));
         }
     }
 
@@ -41,6 +34,7 @@ public class PointsPlayer extends OfflinePointsPlayer {
         if(currencyValues.containsKey(currency))
             currencyValues.remove(currency);
         currencyValues.put(currency, value);
+        parent.getParent().getPointStorage().set(getUniqueId(), currency.getId(), value);
     }
 
     @Override
@@ -51,14 +45,8 @@ public class PointsPlayer extends OfflinePointsPlayer {
     }
 
     public void save(){
-        Iterator<Map.Entry<Currency, Integer>> entries = currencyValues.entrySet().iterator();
-        while(entries.hasNext()){
-            Map.Entry<Currency, Integer> entry = entries.next();
-            Currency currency = entry.getKey();
-            int value = entry.getValue();
-            parent.getParent().getConfig().set("values." + getUniqueId().toString() + "." + currency.getId(), value);
-            parent.getParent().save();
-        }
+        for (Map.Entry<Currency, Integer> entry : currencyValues.entrySet())
+            parent.getParent().getPointStorage().set(getUniqueId(), entry.getKey().getId(), entry.getValue());
     }
 
     public Player getBukkitPlayer() {

@@ -1,5 +1,17 @@
 # PointsAPI2
 
+Paper 26.1.2-compatible points/currency plugin with YAML and MySQL/MariaDB storage.
+
+## Installation
+
+Requires Paper 26.1.2 and Java 25. Place `PointsAPI2-2.1.0.jar` in the server's `plugins` directory and restart the server.
+
+## MySQL / MariaDB
+
+The default storage is local YAML. To use MySQL or MariaDB, set `storage.type: MYSQL` in `plugins/PointsAPI/config.yml`, then provide the host, port, database, username, password, and any optional settings under `storage.mysql`. The plugin creates the `${table-prefix}balances` table automatically. Set `storage.type: YAML` to keep the legacy local file storage.
+
+The MySQL connector and HikariCP connection pool are bundled in the release JAR; no extra server libraries are required.
+
 Hello there! Looking for one of the most easy-to-use Bukkit points plugins without the support of vault? Want complete customization over your points? This is the plugin for you! Complete customization over the whole front-end.
 
 Why choose this plugin over others?

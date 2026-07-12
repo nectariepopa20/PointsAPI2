@@ -7,3 +7,16 @@ currencies:
     singular: Token
     plural: Tokens
     defaultValue: 0
+
+# Use YAML for local storage, or MYSQL for a shared MySQL/MariaDB database.
+storage:
+  type: YAML
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    database: minecraft
+    username: root
+    password: ''
+    use-ssl: false
+    pool-size: 5
+    table-prefix: pointsapi_

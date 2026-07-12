@@ -125,7 +125,7 @@ public class PointsCommand implements CommandExecutor {
                         pointsPlayer.set(currency, i);
                     }
                     else if (type == CmdPointType.RESET) {
-                        pointsPlayer.set(currency, pointsPlayer.get(currency)+i);
+                        pointsPlayer.set(currency, 0);
                     }
                     Bukkit.getPlayerExact(name).sendMessage("§bYour balance was updated.");
                 }
@@ -141,7 +141,7 @@ public class PointsCommand implements CommandExecutor {
                         pointsPlayer.set(currency, i);
                     }
                     else if (type == CmdPointType.RESET) {
-                        pointsPlayer.set(currency, pointsPlayer.get(currency)+i);
+                        pointsPlayer.set(currency, 0);
                     }
                     sender.sendMessage("§bYou have updated " + name + "'s account balance.");
                 }

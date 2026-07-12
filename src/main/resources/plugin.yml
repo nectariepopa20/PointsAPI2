@@ -1,9 +1,9 @@
 name: PointsAPI
-version: 2.0
+version: 2.1.0
 main: me.z609.pointsapi2.PointsAPI
 authors: [Z609]
-description: Create your own currencies!
-softdepend: [ChatFormatter]
+description: Create your own currencies with YAML or MySQL storage.
+api-version: '26.1.2'
 commands:
   points:
     usage: /points
