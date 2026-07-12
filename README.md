@@ -8,11 +8,15 @@ If PlaceholderAPI is installed, PointsAPI automatically registers its built-in e
 
 ## Installation
 
-Requires Paper 26.1.2 and Java 25. Place `PointsAPI2-2.4.0.jar` in the server's `plugins` directory and restart the server.
+Requires Paper 26.1.2 and Java 25. Place `PointsAPI2-2.4.1.jar` in the server's `plugins` directory and restart the server.
 
 ## Messages
 
 Every player-facing message is in `plugins/PointsAPI/messages.yml`. Edit the file, then run `/points reload` (or restart the server) to apply it. Use `&` for colour codes. The available replacements are documented at the top of that file.
+
+## Currencies
+
+Configure currencies in `plugins/PointsAPI/config.yml`. The file is only created on the first startup and is never replaced by the plugin. After changing currencies, restart the server. PlaceholderAPI uses `%pointsapi2_<currency-id>%`, such as `%pointsapi2_gems%`.
 
 ## MySQL / MariaDB
 

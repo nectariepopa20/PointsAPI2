@@ -27,8 +27,9 @@ public class PointsAPI extends JavaPlugin {
 
     @Override
     public void onEnable(){
-        getConfig().options().copyDefaults(true);
-        saveConfig();
+        // Never merge and save bundled defaults over an administrator's existing config.yml.
+        // saveDefaultConfig only creates the file on first startup.
+        saveDefaultConfig();
         messageManager = new MessageManager(this);
         currencyManager = new CurrencyManager(this);
         try {

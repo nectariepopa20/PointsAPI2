@@ -20,7 +20,8 @@ public final class PointsPlaceholderExpansion extends PlaceholderExpansion {
     @Override public boolean persist() { return true; }
 
     @Override public @Nullable String onRequest(@Nullable OfflinePlayer player, @NotNull String params) {
-        if (player == null || !player.hasPlayedBefore() && !player.isOnline()) return null;
+        // PlaceholderAPI can supply an online player before hasPlayedBefore() becomes true.
+        if (player == null) return null;
         Currency currency = plugin.getCurrencyManager().getCurrency(params);
         if (currency == null) return null;
         return Integer.toString(plugin.getPointsPlayerManager().getOfflinePlayer(player).get(currency));

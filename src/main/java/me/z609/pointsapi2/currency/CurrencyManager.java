@@ -2,6 +2,7 @@ package me.z609.pointsapi2.currency;
 
 import me.z609.pointsapi2.PointsAPI;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,12 @@ public class CurrencyManager {
     public CurrencyManager(PointsAPI parent) {
         this.parent = parent;
         FileConfiguration configuration = parent.getConfig();
-        for(String s : configuration.getConfigurationSection("currencies").getKeys(false)){
+        ConfigurationSection currencySection = configuration.getConfigurationSection("currencies");
+        if (currencySection == null) {
+            parent.getLogger().warning("No currencies section was found in config.yml.");
+            return;
+        }
+        for(String s : currencySection.getKeys(false)){
             String key = "currencies." + s + ".";
             String singular = configuration.getString(key + "singular");
             String plural = configuration.getString(key + "plural");
