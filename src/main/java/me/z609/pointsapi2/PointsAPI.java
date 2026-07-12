@@ -80,7 +80,7 @@ public class PointsAPI extends JavaPlugin {
     private void registerPlaceholderExpansion() {
         if (!getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) return;
         if (new PointsPlaceholderExpansion(this).register())
-            getLogger().info("Registered PlaceholderAPI placeholder: %pointsapi_<currency>%");
+            getLogger().info("Registered PlaceholderAPI placeholder: %pointsapi2_<currency>%");
         else
             getLogger().warning("Could not register the built-in PlaceholderAPI expansion.");
     }

@@ -13,7 +13,7 @@ public final class PointsPlaceholderExpansion extends PlaceholderExpansion {
 
     public PointsPlaceholderExpansion(PointsAPI plugin) { this.plugin = plugin; }
 
-    @Override public @NotNull String getIdentifier() { return "pointsapi"; }
+    @Override public @NotNull String getIdentifier() { return "pointsapi2"; }
     @Override public @NotNull String getAuthor() { return "Z609, nectariepopa20"; }
     @Override public @NotNull String getVersion() { return plugin.getDescription().getVersion(); }
 

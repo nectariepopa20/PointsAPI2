@@ -4,11 +4,11 @@ Paper 26.1.2-compatible points/currency plugin with YAML and MySQL/MariaDB stora
 
 ## PlaceholderAPI
 
-If PlaceholderAPI is installed, PointsAPI automatically registers its built-in expansion at startup. Nothing needs to be downloaded or installed through eCloud. Use `%pointsapi_<currency>%`, for example `%pointsapi_gems%` or `%pointsapi_tokens%`.
+If PlaceholderAPI is installed, PointsAPI automatically registers its built-in expansion at startup. Nothing needs to be downloaded or installed through eCloud. Use `%pointsapi2_<currency>%`, for example `%pointsapi2_gems%` or `%pointsapi2_tokens%`.
 
 ## Installation
 
-Requires Paper 26.1.2 and Java 25. Place `PointsAPI2-2.3.0.jar` in the server's `plugins` directory and restart the server.
+Requires Paper 26.1.2 and Java 25. Place `PointsAPI2-2.3.1.jar` in the server's `plugins` directory and restart the server.
 
 ## Messages
 
