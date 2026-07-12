@@ -4,6 +4,7 @@ import me.z609.pointsapi2.command.PointsCommand;
 import me.z609.pointsapi2.currency.CurrencyManager;
 import me.z609.pointsapi2.player.PointsPlayer;
 import me.z609.pointsapi2.player.PointsPlayerManager;
+import me.z609.pointsapi2.placeholder.PointsPlaceholderExpansion;
 import me.z609.pointsapi2.storage.MySqlPointStorage;
 import me.z609.pointsapi2.storage.PointStorage;
 import me.z609.pointsapi2.storage.YamlPointStorage;
@@ -37,6 +38,7 @@ public class PointsAPI extends JavaPlugin {
         }
         pointsPlayerManager = new PointsPlayerManager(this);
         new PointsCommand(this);
+        registerPlaceholderExpansion();
         fullInit = true;
     }
 
@@ -67,4 +69,12 @@ public class PointsAPI extends JavaPlugin {
     }
 
     public PointStorage getPointStorage() { return pointStorage; }
+
+    private void registerPlaceholderExpansion() {
+        if (!getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) return;
+        if (new PointsPlaceholderExpansion(this).register())
+            getLogger().info("Registered PlaceholderAPI placeholder: %pointsapi_<currency>%");
+        else
+            getLogger().warning("Could not register the built-in PlaceholderAPI expansion.");
+    }
 }

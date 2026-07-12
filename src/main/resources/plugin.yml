@@ -1,9 +1,10 @@
 name: PointsAPI
-version: 2.1.0
+version: 2.2.0
 main: me.z609.pointsapi2.PointsAPI
 authors: [Z609]
 description: Create your own currencies with YAML or MySQL storage.
 api-version: '26.1.2'
+softdepend: [PlaceholderAPI]
 commands:
   points:
     usage: /points
