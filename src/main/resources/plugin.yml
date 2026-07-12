@@ -1,5 +1,5 @@
 name: PointsAPI
-version: 2.3.1
+version: 2.4.0
 main: me.z609.pointsapi2.PointsAPI
 authors: [Z609]
 description: Create your own currencies with YAML or MySQL storage.
@@ -8,3 +8,26 @@ softdepend: [PlaceholderAPI]
 commands:
   points:
     usage: /points
+permissions:
+  points.*:
+    description: Gives access to every administrative PointsAPI subcommand.
+    default: op
+    children:
+      points.help: true
+      points.set: true
+      points.add: true
+      points.deduct: true
+      points.reset: true
+      points.reload: true
+  points.help:
+    default: op
+  points.set:
+    default: op
+  points.add:
+    default: op
+  points.deduct:
+    default: op
+  points.reset:
+    default: op
+  points.reload:
+    default: op

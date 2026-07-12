@@ -8,7 +8,7 @@ If PlaceholderAPI is installed, PointsAPI automatically registers its built-in e
 
 ## Installation
 
-Requires Paper 26.1.2 and Java 25. Place `PointsAPI2-2.3.1.jar` in the server's `plugins` directory and restart the server.
+Requires Paper 26.1.2 and Java 25. Place `PointsAPI2-2.4.0.jar` in the server's `plugins` directory and restart the server.
 
 ## Messages
 
@@ -34,9 +34,10 @@ Why choose this plugin over others?
 FULL SUPPORT AND DOCUMENTATION: https://www.z609.me/threads/pointsapi2.7/
 
 Permissions:
-- /points | points.points, points.*, or OP
+- `/points` has no permission requirement; administrative subcommands use their individual `points.<subcommand>` permissions.
 
 Commands:
-- /points - Set points, add points, reset points, and deduct points for players!
+- `/points` — view your own balances; no permission required.
+- `/points help`, `/points set`, `/points add`, `/points deduct`, `/points reset`, and `/points reload` — administrative subcommands with individual `points.<subcommand>` permissions (or `points.*`).
 
 Hope you all enjoy!

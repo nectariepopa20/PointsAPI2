@@ -6,11 +6,11 @@ help:
   - '&b/points add|give <username> <currency> <amount> &7- Add points'
   - '&b/points deduct|take <username> <currency> <amount> &7- Deduct points'
   - '&b/points reset <username> <currency> &7- Reset points'
-  - '&b/points balance &7- See your points'
   - '&b/points reload &7- Reload messages.yml'
-  - '&b/balance|bal|money &7- User-friendly balance command'
 
 insufficient-permissions: '&cInsufficient privileges.'
+players-only: '&cOnly players can use /points without arguments.'
+unknown-subcommand: '&cUnknown points subcommand. Use /points help.'
 missing-update-arguments: '&cPlease specify a username, currency, and an amount!'
 missing-reset-arguments: '&cPlease specify a username and a currency!'
 invalid-currency: '&cInvalid currency: &f{currency}'

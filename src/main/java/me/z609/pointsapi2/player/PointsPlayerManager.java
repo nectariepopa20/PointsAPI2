@@ -1,14 +1,12 @@
 package me.z609.pointsapi2.player;
 
 import me.z609.pointsapi2.PointsAPI;
-import me.z609.pointsapi2.currency.Currency;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -104,20 +102,6 @@ public class PointsPlayerManager implements Listener {
         }
         PointsPlayer pointsPlayer = getPlayer(player);
         close(pointsPlayer);
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onCommand(final PlayerCommandPreprocessEvent event) {
-        final Player player = event.getPlayer();
-        final String msg = event.getMessage().toLowerCase();
-        if ((msg.equalsIgnoreCase("/balance") || msg.equalsIgnoreCase("/bal") || msg.equalsIgnoreCase("/money"))) {
-            PointsPlayer pointsPlayer = getPlayer(player);
-            Iterator<Map.Entry<Currency, Integer>> balances = pointsPlayer.getCurrencyValues().entrySet().iterator();
-            while(balances.hasNext()){
-                Map.Entry<Currency, Integer> balance = balances.next();
-                parent.getMessages().send(pointsPlayer.getBukkitPlayer(), "balance", "{amount}", Integer.toString(balance.getValue()), "{currency_name}", balance.getValue() == 1 ? balance.getKey().getNameSingular() : balance.getKey().getNamePlural());
-            }
-        }
     }
 
 }

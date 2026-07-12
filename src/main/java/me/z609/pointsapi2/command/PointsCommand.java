@@ -11,161 +11,112 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * This code is by Z609, and is copyright (C) 2016 Z609. Don't share this
- * code with the public! Thanks!
- */
-public class PointsCommand implements CommandExecutor {
-    private PointsAPI parent;
+/** The only command exposed by PointsAPI. */
+public final class PointsCommand implements CommandExecutor {
+    private final PointsAPI plugin;
 
-    public PointsCommand(PointsAPI parent) {
-        this.parent = parent;
-        parent.getCommand("points").setExecutor(this);
+    public PointsCommand(PointsAPI plugin) {
+        this.plugin = plugin;
+        plugin.getCommand("points").setExecutor(this);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if(cmd.getName().equalsIgnoreCase("points")){
-            if(sender.hasPermission("points.*")||sender.hasPermission("points.points")) {
-                if (args.length == 0) {
-                    parent.getMessages().sendList(sender, "help");
-                }
-                else if (args[0].equalsIgnoreCase("balance")) {
-                    if (args.length == 1) {
-                        if(sender instanceof Player){
-                            PointsPlayer player = parent.getPointsPlayerManager().getPlayer((Player)sender);
-                            Iterator<Map.Entry<Currency, Integer>> balances = player.getCurrencyValues().entrySet().iterator();
-                            while(balances.hasNext()){
-                                Map.Entry<Currency, Integer> balance = balances.next();
-                                sendBalance(sender, balance.getKey(), balance.getValue());
-                            }
-                        }
-                    }
-                }
-                else if (args[0].equalsIgnoreCase("set")) {
-                    if (args.length < 4) {
-                        parent.getMessages().send(sender, "missing-update-arguments");
-                    }
-                    else{
-                        final String targetRaw = args[1];
-                        final String currencyRaw = args[2];
-                        final String iRaw = args[3];
-                        update(sender, targetRaw, currencyRaw, CmdPointType.SET, iRaw);
-                    }
-                }
-                else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("give")) {
-                    if (args.length < 4) {
-                        parent.getMessages().send(sender, "missing-update-arguments");
-                    }
-                    else{
-                        final String targetRaw = args[1];
-                        final String currencyRaw = args[2];
-                        final String iRaw = args[3];
-                        update(sender, targetRaw, currencyRaw, CmdPointType.ADD, iRaw);
-                    }
-                }
-                else if (args[0].equalsIgnoreCase("deduct") || args[0].equalsIgnoreCase("take")) {
-                    if (args.length < 4) {
-                        parent.getMessages().send(sender, "missing-update-arguments");
-                    }
-                    else{
-                        final String targetRaw = args[1];
-                        final String currencyRaw = args[2];
-                        final String iRaw = args[3];
-                        update(sender, targetRaw, currencyRaw, CmdPointType.DEDUCT, iRaw);
-                    }
-                }
-                else if (args[0].equalsIgnoreCase("reset")) {
-                    if (args.length < 3) {
-                        parent.getMessages().send(sender, "missing-reset-arguments");
-                    }
-                    else{
-                        final String targetRaw = args[1];
-                        final String currencyRaw = args[2];
-                        update(sender, targetRaw, currencyRaw, CmdPointType.RESET, "0");
-                    }
-                }
-                else if (args[0].equalsIgnoreCase("reload")) {
-                    parent.reloadMessages();
-                    parent.getMessages().send(sender, "reloaded");
-                }
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // /points is intentionally permission-free: it only displays the caller's own balance.
+        if (args.length == 0) {
+            if (!(sender instanceof Player player)) {
+                plugin.getMessages().send(sender, "players-only");
+                return true;
             }
-            else{
-                parent.getMessages().send(sender, "insufficient-permissions");
+            PointsPlayer pointsPlayer = plugin.getPointsPlayerManager().getPlayer(player);
+            if (pointsPlayer != null) for (Map.Entry<Currency, Integer> balance : pointsPlayer.getCurrencyValues().entrySet())
+                sendBalance(sender, balance.getKey(), balance.getValue());
+            return true;
+        }
+
+        String subcommand = args[0].toLowerCase();
+        if (subcommand.equals("help")) {
+            if (allowed(sender, "help")) plugin.getMessages().sendList(sender, "help");
+        } else if (subcommand.equals("set")) {
+            if (allowed(sender, "set")) updateFromArguments(sender, args, CmdPointType.SET);
+        } else if (subcommand.equals("add") || subcommand.equals("give")) {
+            if (allowed(sender, "add")) updateFromArguments(sender, args, CmdPointType.ADD);
+        } else if (subcommand.equals("deduct") || subcommand.equals("take")) {
+            if (allowed(sender, "deduct")) updateFromArguments(sender, args, CmdPointType.DEDUCT);
+        } else if (subcommand.equals("reset")) {
+            if (allowed(sender, "reset")) {
+                if (args.length < 3) plugin.getMessages().send(sender, "missing-reset-arguments");
+                else update(sender, args[1], args[2], CmdPointType.RESET, "0");
             }
+        } else if (subcommand.equals("reload")) {
+            if (allowed(sender, "reload")) {
+                plugin.reloadMessages();
+                plugin.getMessages().send(sender, "reloaded");
+            }
+        } else {
+            if (allowed(sender, "help")) plugin.getMessages().send(sender, "unknown-subcommand");
         }
         return true;
     }
 
-    public void update(final CommandSender sender, final String name, final String strcurrency, final CmdPointType type, final String strint) {
-        if(parent.getCurrencyManager().getCurrency(strcurrency)==null){
-            parent.getMessages().send(sender, "invalid-currency", "{currency}", strcurrency);
+    private boolean allowed(CommandSender sender, String permission) {
+        if (sender.hasPermission("points.*") || sender.hasPermission("points." + permission)) return true;
+        plugin.getMessages().send(sender, "insufficient-permissions");
+        return false;
+    }
+
+    private void updateFromArguments(CommandSender sender, String[] args, CmdPointType type) {
+        if (args.length < 4) plugin.getMessages().send(sender, "missing-update-arguments");
+        else update(sender, args[1], args[2], type, args[3]);
+    }
+
+    private void update(CommandSender sender, String name, String currencyId, CmdPointType type, String rawAmount) {
+        Currency currency = plugin.getCurrencyManager().getCurrency(currencyId);
+        if (currency == null) {
+            plugin.getMessages().send(sender, "invalid-currency", "{currency}", currencyId);
             return;
         }
-        Currency currency = parent.getCurrencyManager().getCurrency(strcurrency);
-        if (StaticPointsAPI.isInteger(strint)) {
-            final int i = Integer.parseInt(strint);
-            final UUID uuid = Bukkit.getServer().getOfflinePlayer(name).getUniqueId();
-            if (uuid != null) {
-                if (Bukkit.getPlayerExact(name) != null) {
-                    PointsPlayer pointsPlayer = parent.getPointsPlayerManager().getPlayer(Bukkit.getPlayerExact(name));
-                    if (type == CmdPointType.ADD) {
-                        pointsPlayer.set(currency, pointsPlayer.get(currency)+i);
-                    }
-                    else if (type == CmdPointType.DEDUCT) {
-                        pointsPlayer.set(currency, pointsPlayer.get(currency)-i);
-                    }
-                    else if (type == CmdPointType.SET) {
-                        pointsPlayer.set(currency, i);
-                    }
-                    else if (type == CmdPointType.RESET) {
-                        pointsPlayer.set(currency, 0);
-                    }
-                    parent.getMessages().send(Bukkit.getPlayerExact(name), "target-balance-updated", "{currency_name}", currencyName(currency, pointsPlayer.get(currency)), "{amount}", Integer.toString(pointsPlayer.get(currency)));
-                }
-                else {
-                    OfflinePointsPlayer pointsPlayer = parent.getPointsPlayerManager().getOfflinePlayer(uuid);
-                    if (type == CmdPointType.ADD) {
-                        pointsPlayer.set(currency, pointsPlayer.get(currency)+i);
-                    }
-                    else if (type == CmdPointType.DEDUCT) {
-                        pointsPlayer.set(currency, pointsPlayer.get(currency)-i);
-                    }
-                    else if (type == CmdPointType.SET) {
-                        pointsPlayer.set(currency, i);
-                    }
-                    else if (type == CmdPointType.RESET) {
-                        pointsPlayer.set(currency, 0);
-                    }
-                    parent.getMessages().send(sender, "account-balance-updated", "{player}", name, "{currency_name}", currencyName(currency, pointsPlayer.get(currency)), "{amount}", Integer.toString(pointsPlayer.get(currency)));
-                }
-            }
-            else {
-                parent.getMessages().send(sender, "invalid-player");
-            }
+        if (!StaticPointsAPI.isInteger(rawAmount)) {
+            plugin.getMessages().send(sender, "invalid-number");
+            return;
         }
-        else {
-            parent.getMessages().send(sender, "invalid-number");
+        UUID uuid = Bukkit.getOfflinePlayer(name).getUniqueId();
+        if (uuid == null) {
+            plugin.getMessages().send(sender, "invalid-player");
+            return;
+        }
+        int amount = Integer.parseInt(rawAmount);
+        Player onlinePlayer = Bukkit.getPlayerExact(name);
+        if (onlinePlayer != null) {
+            PointsPlayer pointsPlayer = plugin.getPointsPlayerManager().getPlayer(onlinePlayer);
+            setBalance(pointsPlayer, currency, type, amount);
+            int updatedAmount = pointsPlayer.get(currency);
+            plugin.getMessages().send(onlinePlayer, "target-balance-updated", "{currency_name}", currencyName(currency, updatedAmount), "{amount}", Integer.toString(updatedAmount));
+        } else {
+            OfflinePointsPlayer pointsPlayer = plugin.getPointsPlayerManager().getOfflinePlayer(uuid);
+            setBalance(pointsPlayer, currency, type, amount);
+            int updatedAmount = pointsPlayer.get(currency);
+            plugin.getMessages().send(sender, "account-balance-updated", "{player}", name, "{currency_name}", currencyName(currency, updatedAmount), "{amount}", Integer.toString(updatedAmount));
         }
     }
 
+    private void setBalance(OfflinePointsPlayer player, Currency currency, CmdPointType type, int amount) {
+        if (type == CmdPointType.SET) player.set(currency, amount);
+        else if (type == CmdPointType.RESET) player.set(currency, 0);
+        else if (type == CmdPointType.ADD) player.set(currency, player.get(currency) + amount);
+        else player.set(currency, player.get(currency) - amount);
+    }
+
     private void sendBalance(CommandSender recipient, Currency currency, int amount) {
-        parent.getMessages().send(recipient, "balance", "{amount}", Integer.toString(amount), "{currency_name}", currencyName(currency, amount));
+        plugin.getMessages().send(recipient, "balance", "{amount}", Integer.toString(amount), "{currency_name}", currencyName(currency, amount));
     }
 
     private String currencyName(Currency currency, int amount) {
         return amount == 1 ? currency.getNameSingular() : currency.getNamePlural();
     }
 
-    public enum CmdPointType
-    {
-        SET,
-        DEDUCT,
-        RESET,
-        ADD;
-    }
+    private enum CmdPointType { SET, DEDUCT, RESET, ADD }
 }
