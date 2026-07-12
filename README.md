@@ -8,7 +8,11 @@ If PlaceholderAPI is installed, PointsAPI automatically registers its built-in e
 
 ## Installation
 
-Requires Paper 26.1.2 and Java 25. Place `PointsAPI2-2.2.0.jar` in the server's `plugins` directory and restart the server.
+Requires Paper 26.1.2 and Java 25. Place `PointsAPI2-2.3.0.jar` in the server's `plugins` directory and restart the server.
+
+## Messages
+
+Every player-facing message is in `plugins/PointsAPI/messages.yml`. Edit the file, then run `/points reload` (or restart the server) to apply it. Use `&` for colour codes. The available replacements are documented at the top of that file.
 
 ## MySQL / MariaDB
 

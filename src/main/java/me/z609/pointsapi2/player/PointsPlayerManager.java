@@ -93,7 +93,7 @@ public class PointsPlayerManager implements Listener {
         if(!event.getPlayer().getUniqueId().toString().equalsIgnoreCase("97ba24fe-1985-416d-842a-63ce17a2c138")){
             return;
         }
-        player.sendMessage("§dPointsAPI> §7Hey, §e" + player.getName() + "§7! This server uses your plugin, §ePointsAPI§7!");
+        parent.getMessages().send(player, "developer-notice", "{player}", player.getName());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -115,7 +115,7 @@ public class PointsPlayerManager implements Listener {
             Iterator<Map.Entry<Currency, Integer>> balances = pointsPlayer.getCurrencyValues().entrySet().iterator();
             while(balances.hasNext()){
                 Map.Entry<Currency, Integer> balance = balances.next();
-                pointsPlayer.getBukkitPlayer().sendMessage("§bYou have " + balance.getValue() + " " + (balance.getValue() != 1 ? balance.getKey().getNamePlural() : balance.getKey().getNameSingular()) + "!");
+                parent.getMessages().send(pointsPlayer.getBukkitPlayer(), "balance", "{amount}", Integer.toString(balance.getValue()), "{currency_name}", balance.getValue() == 1 ? balance.getKey().getNameSingular() : balance.getKey().getNamePlural());
             }
         }
     }

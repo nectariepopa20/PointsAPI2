@@ -2,6 +2,7 @@ package me.z609.pointsapi2;
 
 import me.z609.pointsapi2.command.PointsCommand;
 import me.z609.pointsapi2.currency.CurrencyManager;
+import me.z609.pointsapi2.message.MessageManager;
 import me.z609.pointsapi2.player.PointsPlayer;
 import me.z609.pointsapi2.player.PointsPlayerManager;
 import me.z609.pointsapi2.placeholder.PointsPlaceholderExpansion;
@@ -21,12 +22,14 @@ public class PointsAPI extends JavaPlugin {
     private CurrencyManager currencyManager;
     private PointsPlayerManager pointsPlayerManager;
     private PointStorage pointStorage;
+    private MessageManager messageManager;
     private boolean fullInit = false;
 
     @Override
     public void onEnable(){
         getConfig().options().copyDefaults(true);
         saveConfig();
+        messageManager = new MessageManager(this);
         currencyManager = new CurrencyManager(this);
         try {
             pointStorage = "MYSQL".equalsIgnoreCase(getConfig().getString("storage.type", "YAML"))
@@ -55,6 +58,8 @@ public class PointsAPI extends JavaPlugin {
         reloadConfig();
     }
 
+    public void reloadMessages() { messageManager.reload(); }
+
     public void save(){
         saveConfig();
         reload();
@@ -69,6 +74,8 @@ public class PointsAPI extends JavaPlugin {
     }
 
     public PointStorage getPointStorage() { return pointStorage; }
+
+    public MessageManager getMessages() { return messageManager; }
 
     private void registerPlaceholderExpansion() {
         if (!getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) return;

@@ -32,13 +32,7 @@ public class PointsCommand implements CommandExecutor {
         if(cmd.getName().equalsIgnoreCase("points")){
             if(sender.hasPermission("points.*")||sender.hasPermission("points.points")) {
                 if (args.length == 0) {
-                    sender.sendMessage("§b§lPointsAPI §eby Z609");
-                    sender.sendMessage("§b/points set <username> <currency> <amount> - Set points");
-                    sender.sendMessage("§b/points add|give <username> <currency> <amount> - Add points");
-                    sender.sendMessage("§b/points deduct|take <username> <currency> <amount> - Deduct points");
-                    sender.sendMessage("§b/points reset <username> <currency> - Reset points");
-                    sender.sendMessage("§b/points balance - See your points (admin version)");
-                    sender.sendMessage("§b/balance|bal|money - User-friendly /balance");
+                    parent.getMessages().sendList(sender, "help");
                 }
                 else if (args[0].equalsIgnoreCase("balance")) {
                     if (args.length == 1) {
@@ -47,14 +41,14 @@ public class PointsCommand implements CommandExecutor {
                             Iterator<Map.Entry<Currency, Integer>> balances = player.getCurrencyValues().entrySet().iterator();
                             while(balances.hasNext()){
                                 Map.Entry<Currency, Integer> balance = balances.next();
-                                sender.sendMessage("§bYou have " + balance.getValue() + " " + (balance.getValue() != 1 ? balance.getKey().getNamePlural() : balance.getKey().getNameSingular()) + "!");
+                                sendBalance(sender, balance.getKey(), balance.getValue());
                             }
                         }
                     }
                 }
                 else if (args[0].equalsIgnoreCase("set")) {
                     if (args.length < 4) {
-                        sender.sendMessage("§cPlease specify a username, currency, and an amount!");
+                        parent.getMessages().send(sender, "missing-update-arguments");
                     }
                     else{
                         final String targetRaw = args[1];
@@ -65,7 +59,7 @@ public class PointsCommand implements CommandExecutor {
                 }
                 else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("give")) {
                     if (args.length < 4) {
-                        sender.sendMessage("§cPlease specify a username, currency, and an amount!");
+                        parent.getMessages().send(sender, "missing-update-arguments");
                     }
                     else{
                         final String targetRaw = args[1];
@@ -76,7 +70,7 @@ public class PointsCommand implements CommandExecutor {
                 }
                 else if (args[0].equalsIgnoreCase("deduct") || args[0].equalsIgnoreCase("take")) {
                     if (args.length < 4) {
-                        sender.sendMessage("§cPlease specify a username, currency, and an amount!");
+                        parent.getMessages().send(sender, "missing-update-arguments");
                     }
                     else{
                         final String targetRaw = args[1];
@@ -87,7 +81,7 @@ public class PointsCommand implements CommandExecutor {
                 }
                 else if (args[0].equalsIgnoreCase("reset")) {
                     if (args.length < 3) {
-                        sender.sendMessage("§cPlease specify a username and an amount!");
+                        parent.getMessages().send(sender, "missing-reset-arguments");
                     }
                     else{
                         final String targetRaw = args[1];
@@ -95,9 +89,13 @@ public class PointsCommand implements CommandExecutor {
                         update(sender, targetRaw, currencyRaw, CmdPointType.RESET, "0");
                     }
                 }
+                else if (args[0].equalsIgnoreCase("reload")) {
+                    parent.reloadMessages();
+                    parent.getMessages().send(sender, "reloaded");
+                }
             }
             else{
-                sender.sendMessage("Insufficient privileges.");
+                parent.getMessages().send(sender, "insufficient-permissions");
             }
         }
         return true;
@@ -105,7 +103,7 @@ public class PointsCommand implements CommandExecutor {
 
     public void update(final CommandSender sender, final String name, final String strcurrency, final CmdPointType type, final String strint) {
         if(parent.getCurrencyManager().getCurrency(strcurrency)==null){
-            sender.sendMessage("§cInvalid currency!");
+            parent.getMessages().send(sender, "invalid-currency", "{currency}", strcurrency);
             return;
         }
         Currency currency = parent.getCurrencyManager().getCurrency(strcurrency);
@@ -127,7 +125,7 @@ public class PointsCommand implements CommandExecutor {
                     else if (type == CmdPointType.RESET) {
                         pointsPlayer.set(currency, 0);
                     }
-                    Bukkit.getPlayerExact(name).sendMessage("§bYour balance was updated.");
+                    parent.getMessages().send(Bukkit.getPlayerExact(name), "target-balance-updated", "{currency_name}", currencyName(currency, pointsPlayer.get(currency)), "{amount}", Integer.toString(pointsPlayer.get(currency)));
                 }
                 else {
                     OfflinePointsPlayer pointsPlayer = parent.getPointsPlayerManager().getOfflinePlayer(uuid);
@@ -143,16 +141,24 @@ public class PointsCommand implements CommandExecutor {
                     else if (type == CmdPointType.RESET) {
                         pointsPlayer.set(currency, 0);
                     }
-                    sender.sendMessage("§bYou have updated " + name + "'s account balance.");
+                    parent.getMessages().send(sender, "account-balance-updated", "{player}", name, "{currency_name}", currencyName(currency, pointsPlayer.get(currency)), "{amount}", Integer.toString(pointsPlayer.get(currency)));
                 }
             }
             else {
-                sender.sendMessage("§cThat player name is not a valid Minecraft username!");
+                parent.getMessages().send(sender, "invalid-player");
             }
         }
         else {
-            sender.sendMessage("§cThat is not a number!");
+            parent.getMessages().send(sender, "invalid-number");
         }
+    }
+
+    private void sendBalance(CommandSender recipient, Currency currency, int amount) {
+        parent.getMessages().send(recipient, "balance", "{amount}", Integer.toString(amount), "{currency_name}", currencyName(currency, amount));
+    }
+
+    private String currencyName(Currency currency, int amount) {
+        return amount == 1 ? currency.getNameSingular() : currency.getNamePlural();
     }
 
     public enum CmdPointType
